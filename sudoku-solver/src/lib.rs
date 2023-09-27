@@ -56,7 +56,7 @@ impl Board {
         }
 
         //the cell has to exist because of the guard condition self.placed = 81
-        let empty_index = empty_index.unwrap();
+        let empty_index = empty_index.expect("The board is not valid");
         for i in 1..=9 {
             self.board[empty_index] = GUESS(i);
             self.placed += 1;
