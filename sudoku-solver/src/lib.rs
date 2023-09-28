@@ -1,7 +1,8 @@
+use serde::Serialize;
 use crate::Field::{EMPTY, GUESS, VALID};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-enum Field {
+#[derive(Debug, Copy, Clone, PartialEq, Serialize)]
+pub enum Field {
     VALID(i8),
     GUESS(i8),
     EMPTY,
@@ -130,10 +131,6 @@ impl Board {
     }
 }
 
-
-fn main() {
-    println!("Hello, world!");
-}
 
 #[cfg(test)]
 mod test {

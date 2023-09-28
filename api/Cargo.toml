@@ -10,3 +10,5 @@ sudoku-solver = { path = "../sudoku-solver" }
 anyhow = "1.0.75"
 axum = "0.6.20"
 tokio = {version = "1.32.0", features = ["full"]}
+serde = {version = "1.0.188", features = ["derive"]}
+serde_json = "1.0.107"

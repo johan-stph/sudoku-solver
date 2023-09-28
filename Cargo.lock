@@ -29,6 +29,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "serde",
+ "serde_json",
  "sudoku-solver",
  "tokio",
 ]
@@ -552,6 +554,9 @@ dependencies = [
 [[package]]
 name = "sudoku-solver"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "syn"
