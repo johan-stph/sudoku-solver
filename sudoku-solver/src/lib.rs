@@ -115,7 +115,7 @@ impl Board {
         let placed = self.placed.clone();
         let mut board = Board {
             board,
-            placed
+            placed,
         };
         if self.solve_board_rec(&mut board) {
             return Ok(board);
@@ -215,6 +215,13 @@ impl Board {
 #[cfg(test)]
 mod test {
     use crate::Board;
+
+    #[test]
+    fn test_creation() {
+        let board_str = "070004130000207006005013020001002000002190057003045802010378260367000580809001070";
+        dbg!(board_str.len());
+        Board::new(board_str).unwrap();
+    }
 
     #[test]
     fn test_board_init() {

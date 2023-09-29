@@ -6,8 +6,8 @@ use lambda_http::{
     run,
     Error,
 };
-use serde::Serialize;
-use sudoku_solver::{Board, Field};
+use serde::{Deserialize, Serialize};
+use sudoku_solver::Board;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -28,7 +28,7 @@ struct JsonResponseSample {
     hello: String
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct Sudoku {
     board: String
 }
@@ -39,11 +39,21 @@ async fn handler() -> Json<JsonResponseSample> {
     })
 }
 
-async fn solve_sudoku(sudoku: Query<Sudoku>) -> Result<Json(Sudoku), StatusCode> {
-    let board = Board::new(sudoku.board.as_str())?;
+async fn solve_sudoku(sudoku: Query<Sudoku>) -> Result<Json<Sudoku>, StatusCode> {
+    let board = Board::new(sudoku.board.as_str())
+        .map_err(|_| {
+            StatusCode::FORBIDDEN
+        })?;
     let solved = board.solve_board()
-    Json(Sudoku {
-        
-    })
+        .map_err(|_| {
+            StatusCode::BAD_REQUEST
+        })?;
+    Ok(
+        Json(
+            Sudoku {
+                board: solved.to_string()
+            }
+        )
+    )
 }
 
