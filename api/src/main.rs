@@ -1,11 +1,16 @@
-use std::net::SocketAddr;
 use axum::{Json, Router};
+use axum::extract::Query;
+use axum::http::StatusCode;
 use axum::routing::get;
+use lambda_http::{
+    run,
+    Error,
+};
 use serde::Serialize;
-use sudoku_solver::Field;
+use sudoku_solver::{Board, Field};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Error> {
     let app = Router::new().route(
         "/",
         get(handler)
@@ -14,12 +19,8 @@ async fn main() {
             "/sudoku",
             get(solve_sudoku)
         );
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3001));
-    println!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    run(app)
         .await
-        .unwrap();
 }
 
 #[derive(Serialize)]
@@ -28,8 +29,8 @@ struct JsonResponseSample {
 }
 
 #[derive(Serialize)]
-struct SudokuResult {
-    result: Vec<Field>
+struct Sudoku {
+    board: String
 }
 
 async fn handler() -> Json<JsonResponseSample> {
@@ -38,9 +39,11 @@ async fn handler() -> Json<JsonResponseSample> {
     })
 }
 
-async fn solve_sudoku() -> Json<SudokuResult> {
-    Json(SudokuResult {
-        result: vec![]
+async fn solve_sudoku(sudoku: Query<Sudoku>) -> Result<Json(Sudoku), StatusCode> {
+    let board = Board::new(sudoku.board.as_str())?;
+    let solved = board.solve_board()
+    Json(Sudoku {
+        
     })
 }
 
