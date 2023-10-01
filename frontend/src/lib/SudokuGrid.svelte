@@ -1,7 +1,38 @@
 <script lang="ts">
+    import {onMount} from "svelte";
+
     export let board: number[][];
 
     let canvas: HTMLCanvasElement;
+    let selectedCell: { row: number, col: number } | null = null;
+
+    onMount(() => {
+        window.addEventListener('keydown', handleKeydown);
+        return () => {
+            window.removeEventListener('keydown', handleKeydown);
+        };
+    });
+
+    function handleClick(event: MouseEvent) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const cellSize = 50; // Size of each cell
+
+        const row = Math.floor(y / cellSize);
+        const col = Math.floor(x / cellSize);
+
+        selectedCell = {row, col};
+    }
+
+    function handleKeydown(event: KeyboardEvent) {
+        if (selectedCell) {
+            const value = parseInt(event.key);
+            if (value >= 1 && value <= 9) {
+                board[selectedCell.row][selectedCell.col] = value;
+            }
+        }
+    }
 
     // Reactive statement to re-draw the canvas whenever the board changes
     $: {
@@ -55,13 +86,23 @@
                     }
                 }
             }
+            if (selectedCell) {
+                ctx.fillStyle = 'rgba(0, 128, 255, 0.3)';  // Semi-transparent blue
+                ctx.fillRect(
+                    selectedCell.col * cellSize,
+                    selectedCell.row * cellSize,
+                    cellSize,
+                    cellSize
+                );
+            }
         }
     }
 </script>
 
 <div class="game-wrapper">
     <div id="game" class="game">
-        <canvas bind:this={canvas} width="450" height="450" style="width: 450px; height: 450px;"></canvas>
+        <canvas bind:this={canvas} width="450" height="450" style="width: 450px; height: 450px;"
+                on:click={handleClick}></canvas>
     </div>
 </div>
 
