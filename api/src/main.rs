@@ -1,36 +1,45 @@
 use axum::{Json, Router};
 use axum::extract::Query;
-use axum::http::StatusCode;
+use axum::http::{HeaderValue, Method, StatusCode};
 use axum::routing::get;
 use lambda_http::{
-    run,
     Error,
+    run,
 };
 use serde::{Deserialize, Serialize};
+use tower_http::cors::CorsLayer;
+
 use sudoku_solver::Board;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let app = Router::new().route(
         "/",
-        get(handler)
+        get(handler),
     )
         .route(
             "/sudoku",
-            get(solve_sudoku)
-        );
+            get(solve_sudoku),
+        )
+        .route("/random",
+               get(get_random_sudoku)).layer(
+        CorsLayer::new()
+            .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+            .allow_methods(Method::GET)
+    );
+    //runs locally on :9000
     run(app)
         .await
 }
 
 #[derive(Serialize)]
 struct JsonResponseSample {
-    hello: String
+    hello: String,
 }
 
 #[derive(Serialize, Deserialize)]
 struct Sudoku {
-    board: String
+    board: String,
 }
 
 async fn handler() -> Json<JsonResponseSample> {
@@ -54,6 +63,17 @@ async fn solve_sudoku(sudoku: Query<Sudoku>) -> Result<Json<Sudoku>, StatusCode>
                 board: solved.to_string()
             }
         )
+    )
+}
+
+
+async fn get_random_sudoku() -> Json<Sudoku> {
+    Json(
+        Sudoku {
+            board: String::from(
+                "070004130000207006005013020001002000002190057003045802010378260367000580809001070"
+            )
+        }
     )
 }
 
