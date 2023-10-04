@@ -1,3 +1,4 @@
+use std::env;
 use axum::{Json, Router};
 use axum::extract::Query;
 use axum::http::{HeaderValue, Method, StatusCode};
@@ -13,6 +14,7 @@ use sudoku_solver::Board;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    let url = env::var("URL").expect("URL not set");
     let app = Router::new().route(
         "/",
         get(handler),
@@ -24,7 +26,7 @@ async fn main() -> Result<(), Error> {
         .route("/random",
                get(get_random_sudoku)).layer(
         CorsLayer::new()
-            .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+            .allow_origin(url.as_str().parse::<HeaderValue>().unwrap())
             .allow_methods(Method::GET)
     );
     //runs locally on :9000
